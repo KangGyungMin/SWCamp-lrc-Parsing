@@ -22,7 +22,7 @@ namespace Presto.SWCamp.Lyrics
     /// </summary>
     public partial class LyricsWindow : Window
     {
-        SortedList<TimeSpan, string> _lyrics = new SortedList<TimeSpan, string>();
+        SortedList<double, string> _lyrics = new SortedList<double, string>();
 
         public LyricsWindow()
         {
@@ -44,7 +44,7 @@ namespace Presto.SWCamp.Lyrics
                 var splitData = lines[i].Split(']');
                 var time = TimeSpan.ParseExact(splitData[0].Substring(1).Trim(), @"mm\:ss\.ff", CultureInfo.InvariantCulture);
               
-                _lyrics.Add(time, splitData[1]);
+                _lyrics.Add(time.TotalMilliseconds, splitData[1]);
 
                 //textLyrics.Text = time.ToString();
                 //MessageBox.Show(_lyrics.Keys[i-3].TotalMilliseconds.ToString());
@@ -58,17 +58,22 @@ namespace Presto.SWCamp.Lyrics
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            for (int i = 0; i < _lyrics.Count; i++)
+            var current = PrestoSDK.PrestoService.Player.Position;
+            List<double> bin = _lyrics.Keys.ToList();
+            var BS = bin.BinarySearch(current);
+            if (BS < 0)
             {
-                var cur = PrestoSDK.PrestoService.Player.Position;
-
-                if (_lyrics.Keys[i].TotalMilliseconds <= cur && _lyrics.Keys[Math.Min(_lyrics.Count - 1, i + 1)].TotalMilliseconds >= cur)
+                BS = ~BS;
+                if(BS>=0&& BS< bin.Count)
                 {
-                    textLyrics.Text = _lyrics.Values[i];
-                }
-                else if (_lyrics.Keys[0].TotalMilliseconds > cur)
-                {
-                    textLyrics.Text = "가사 준비 중입니다.";
+                    if (BS > 0)
+                    {
+                        textLyrics.Text = _lyrics.Values[BS-1];
+                    }
+                    else
+                    {
+                        textLyrics.Text = "가사 준비 중입니다.";
+                    }
                 }
             }
         }
