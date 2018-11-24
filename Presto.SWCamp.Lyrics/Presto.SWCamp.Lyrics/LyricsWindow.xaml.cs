@@ -32,7 +32,7 @@ namespace Presto.SWCamp.Lyrics
 
         private void Player_StreamChanged(object sender, Common.StreamChangedEventArgs e)
         {
-            SortedList<TimeSpan, string> _lyrics = new SortedList<TimeSpan, string>();
+            _lyrics.Clear();
             textLyrics.Text = null;
             var fileName = PrestoSDK.PrestoService.Player.CurrentMusic.Path;
             var lrcName = Path.GetFileNameWithoutExtension(fileName) + ".lrc";
@@ -50,10 +50,8 @@ namespace Presto.SWCamp.Lyrics
                 //MessageBox.Show(_lyrics.Keys[i-3].TotalMilliseconds.ToString());
             }
 
-            var timer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(100)
-            };
+            var timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromMilliseconds(10);
             timer.Tick += Timer_Tick;
             timer.Start();
         }
@@ -62,14 +60,17 @@ namespace Presto.SWCamp.Lyrics
         {
             for (int i = 0; i < _lyrics.Count; i++)
             {
-                if (_lyrics.Keys[i].TotalMilliseconds >= PrestoSDK.PrestoService.Player.Position && _lyrics.Keys[Math.Min(_lyrics.Count-1,i+1)].TotalMilliseconds <= PrestoSDK.PrestoService.Player.Position)
+                var cur = PrestoSDK.PrestoService.Player.Position;
+
+                if (_lyrics.Keys[i].TotalMilliseconds <= cur && _lyrics.Keys[Math.Min(_lyrics.Count - 1, i + 1)].TotalMilliseconds >= cur)
                 {
                     textLyrics.Text = _lyrics.Values[i];
                 }
+                else if (_lyrics.Keys[0].TotalMilliseconds > cur)
+                {
+                    textLyrics.Text = "가사 준비 중입니다.";
+                }
             }
-
-            // times[i] <> PrestoSDK.PrestoService.Player.Position
-
         }
     }
 }
