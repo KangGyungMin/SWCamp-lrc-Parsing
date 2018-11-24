@@ -61,19 +61,18 @@ namespace Presto.SWCamp.Lyrics
             var current = PrestoSDK.PrestoService.Player.Position;
             List<double> bin = _lyrics.Keys.ToList();
             var BS = bin.BinarySearch(current);
-            if (BS < 0)
-            {
+            BS += 1;
+            //MessageBox.Show(BS.ToString());
+            if (BS <= 0)
+            { 
                 BS = ~BS;
-                if(BS>=0&& BS< bin.Count)
+                if (BS >= 0 && BS < bin.Count)
                 {
-                    if (BS > 0)
-                    {
-                        textLyrics.Text = _lyrics.Values[BS-1];
-                    }
-                    else
-                    {
-                        textLyrics.Text = "가사 준비 중입니다.";
-                    }
+                    textLyrics.Text = _lyrics.Values[BS];
+                }
+                else
+                {
+                    textLyrics.Text = "가사 준비";
                 }
             }
         }
