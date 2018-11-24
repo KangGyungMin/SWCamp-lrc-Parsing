@@ -1,4 +1,4 @@
-﻿using Presto.SDK;
+using Presto.SDK;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -43,7 +43,7 @@ namespace Presto.SWCamp.Lyrics
             };
             timer.Tick += Timer_Tick;
             timer.Start();
-            
+
         }
 
         private void Timer_Tick(object sender, EventArgs e)
