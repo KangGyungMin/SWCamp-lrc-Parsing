@@ -32,7 +32,7 @@ namespace Presto.SWCamp.Lyrics
             for(int i = 3; i<=lines.Length; i++)
             {
                 var splitData = lines[i].Split(']');
-                var time = TimeSpan.ParseExact(splitData[0].Substring(1).Trim(), 
+                var time = TimeSpan.ParseExact(splitData[0].Substring(1).Trim(),
                     @"mm\:ss\.ff", CultureInfo.InvariantCulture);
                 MessageBox.Show(splitData[1].Substring(0));
                 //MessageBox.Show(time.TotalMilliseconds.ToString());
