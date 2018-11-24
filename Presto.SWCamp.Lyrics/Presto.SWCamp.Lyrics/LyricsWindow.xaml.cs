@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -27,27 +28,35 @@ namespace Presto.SWCamp.Lyrics
         public LyricsWindow()
         {
             InitializeComponent();
-            PrestoSDK.PrestoService.Player.StreamChanged += Player_StreamChanged;
+            PrestoSDK.PrestoService.Player.StreamChanged += Player_StreamChanged; // When music changes
         }
 
         private void Player_StreamChanged(object sender, Common.StreamChangedEventArgs e)
         {
-            _lyrics.Clear();
-            textLyrics.Text = null;
+            _lyrics.Clear(); // SortedList Clear
             var fileName = PrestoSDK.PrestoService.Player.CurrentMusic.Path;
             var lrcName = Path.GetFileNameWithoutExtension(fileName) + ".lrc";
             var path = Path.Combine(Path.GetDirectoryName(fileName), lrcName);
             var lines = File.ReadAllLines(path);
+            String Data2 = null;
 
             for (int i = 3; i < lines.Length; i++)
             {
-                var splitData = lines[i];
-                var time = TimeSpan.ParseExact(splitData.Substring(1,8).Trim(), @"mm\:ss\.ff", CultureInfo.InvariantCulture);
-              
-                _lyrics.Add(time.TotalMilliseconds, splitData.Substring(10));
+                var Data = lines[i];
+                var time = TimeSpan.ParseExact(Data.Substring(1,8).Trim(), @"mm\:ss\.ff", CultureInfo.InvariantCulture);
 
-                //textLyrics.Text = time.ToString();
-                //MessageBox.Show(_lyrics.Keys[i-3].TotalMilliseconds.ToString());
+                if (_lyrics.ContainsKey(time.TotalMilliseconds))
+                {
+                    _lyrics.Remove(time.TotalMilliseconds);
+                    Data2 = Data2 + '\n' + Data.Substring(10);
+                    _lyrics.Add(time.TotalMilliseconds, Data2.Substring(10));
+                }
+                else
+                {
+                    _lyrics.Add(time.TotalMilliseconds, Data.Substring(10));
+                    Data2 = Data.Substring(10);
+                }
+                
             }
 
             var timer = new DispatcherTimer();
@@ -59,10 +68,9 @@ namespace Presto.SWCamp.Lyrics
         private void Timer_Tick(object sender, EventArgs e)
         {
             var current = PrestoSDK.PrestoService.Player.Position;
-            List<double> bin = _lyrics.Keys.ToList();
+            List<double> bin = _lyrics.Keys.ToList(); // SortedList -> List // for BinarySearch 
             var BS = bin.BinarySearch(current);
             BS += 1;
-            //MessageBox.Show(BS.ToString());
             if (BS <= 0)
             {
                 BS = ~BS;
@@ -72,7 +80,7 @@ namespace Presto.SWCamp.Lyrics
                 }
                 else
                 {
-                    textLyrics.Text = "가사 준비";
+                    textLyrics.Text = "가사 준비중";
                 }
             }
         }
