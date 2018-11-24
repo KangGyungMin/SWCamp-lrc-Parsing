@@ -41,10 +41,10 @@ namespace Presto.SWCamp.Lyrics
 
             for (int i = 3; i < lines.Length; i++)
             {
-                var splitData = lines[i].Split(']');
-                var time = TimeSpan.ParseExact(splitData[0].Substring(1).Trim(), @"mm\:ss\.ff", CultureInfo.InvariantCulture);
+                var splitData = lines[i];
+                var time = TimeSpan.ParseExact(splitData.Substring(1,8).Trim(), @"mm\:ss\.ff", CultureInfo.InvariantCulture);
               
-                _lyrics.Add(time.TotalMilliseconds, splitData[1]);
+                _lyrics.Add(time.TotalMilliseconds, splitData.Substring(10));
 
                 //textLyrics.Text = time.ToString();
                 //MessageBox.Show(_lyrics.Keys[i-3].TotalMilliseconds.ToString());
@@ -64,7 +64,7 @@ namespace Presto.SWCamp.Lyrics
             BS += 1;
             //MessageBox.Show(BS.ToString());
             if (BS <= 0)
-            { 
+            {
                 BS = ~BS;
                 if (BS >= 0 && BS < bin.Count)
                 {
